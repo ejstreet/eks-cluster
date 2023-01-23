@@ -15,7 +15,7 @@ provider "aws" {
 data "aws_availability_zones" "available" {}
 
 locals {
-  cluster_name = "education-eks-${random_string.suffix.result}"
+  unique_cluster_name = "${var.cluster_name}-${random_string.suffix.result}"
 }
 
 resource "random_string" "suffix" {

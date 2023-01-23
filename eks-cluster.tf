@@ -1,38 +1,18 @@
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.0.4"
+  version = "19.5.1"
 
-  cluster_name    = local.cluster_name
-  cluster_version = "1.24"
-
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.private_subnets
+  cluster_name                   = local.unique_cluster_name
+  cluster_version                = var.kubernetes_version
+  vpc_id                         = var.create_vpc ? module.vpc.vpc_id : var.existing_vpc_id
+  subnet_ids                     = var.create_vpc ? module.vpc.private_subnets : var.existing_vpc_subnet_ids
   cluster_endpoint_public_access = true
 
   eks_managed_node_group_defaults = {
-    ami_type = "AL2_x86_64"
+    ami_type = var.ami_type
 
   }
 
-  eks_managed_node_groups = {
-    one = {
-      name = "node-group-1"
+  eks_managed_node_groups = { for i, g in var.eks_managed_node_groups : g.name => g }
 
-      instance_types = ["t3.small"]
-
-      min_size     = 1
-      max_size     = 3
-      desired_size = 2
-    }
-
-    two = {
-      name = "node-group-2"
-
-      instance_types = ["t3.small"]
-
-      min_size     = 1
-      max_size     = 2
-      desired_size = 1
-    }
-  }
 }
